@@ -19,7 +19,7 @@ namespace VisualStudioSolutionShaker
             IEnumerable<string> primeProjectsAndDependencies = MSBuildUtilities.ProjectsIncludingNOrderDependencies(primeProjects);
 
             // These projects need to be removed
-            IEnumerable<string> projectsToRemove = projectsInSolution.Except(primeProjectsAndDependencies);
+            IEnumerable<string> projectsToRemove = projectsInSolution.Except(primeProjectsAndDependencies, StringComparer.InvariantCultureIgnoreCase);
 
             return projectsToRemove;
         }
