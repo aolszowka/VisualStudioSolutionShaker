@@ -66,6 +66,12 @@ namespace VisualStudioSolutionShaker
 
                                 // Because we're going to constantly use this for lookups save it off
                                 ignoredSolutionPatterns = _GetIgnoredSolutionPatterns(ignoredSolutionsArgument).ToArray();
+
+                                Console.WriteLine($"These are the ignored patterns (From: {ignoredSolutionsArgument})");
+                                foreach (var ignoredSolutionPattern in ignoredSolutionPatterns)
+                                {
+                                    Console.WriteLine("{0}", ignoredSolutionPattern);
+                                }
                             }
 
                             errorCode = ShakeSolutionsInDirectoryCount(targetArgument, ignoredSolutionPatterns);
@@ -93,17 +99,23 @@ namespace VisualStudioSolutionShaker
 
                         if (args.Length == 1)
                         {
-                            string shakingAllSolutionsInDirectory = $"Shaking all Visual Studio Solutions (*.sln) in `{targetPath}`";
+                            string shakingAllSolutionsInDirectory = $"REM Shaking all Visual Studio Solutions (*.sln) in `{targetPath}`";
                             Console.WriteLine(shakingAllSolutionsInDirectory);
                         }
                         else
                         {
                             string ignoredSolutionsArgument = args[1];
-                            string shakingAllSolutionsInDirectory = $"Shaking all solutions in `{targetPath}` except those filtered by `{ignoredSolutionsArgument}`";
+                            string shakingAllSolutionsInDirectory = $"REM Shaking all solutions in `{targetPath}` except those filtered by `{ignoredSolutionsArgument}`";
                             Console.WriteLine(shakingAllSolutionsInDirectory);
 
                             // Because we're going to constantly use this for lookups save it off
                             ignoredSolutionPatterns = _GetIgnoredSolutionPatterns(ignoredSolutionsArgument).ToArray();
+
+                            Console.WriteLine($"REM These are the ignored patterns (From: {ignoredSolutionsArgument})");
+                            foreach(var ignoredSolutionPattern in ignoredSolutionPatterns)
+                            {
+                                Console.WriteLine("REM {0}", ignoredSolutionPattern);
+                            }
                         }
 
                         bool projectsToRemove = ShakeSolutionsInDirectoryToConsole(targetPath, ignoredSolutionPatterns);
