@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Program.cs" company="Ace Olszowka">
-//  Copyright (c) Ace Olszowka 2019. All rights reserved.
+//  Copyright (c) Ace Olszowka 2019-2020. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 namespace VisualStudioSolutionShaker
@@ -11,7 +11,10 @@ namespace VisualStudioSolutionShaker
     using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
-    using Properties;
+
+    using NDesk.Options;
+
+    using VisualStudioSolutionShaker.Properties;
 
     class Program
     {
@@ -25,133 +28,138 @@ namespace VisualStudioSolutionShaker
         /// <param name="args">See <see cref="ShowUsage"/></param>
         public static void Main(string[] args)
         {
-            // Always Error Unless Successful
-            int errorCode = -808;
+            string targetArgument = string.Empty;
+            string ignoreFileArgument = string.Empty;
+            bool validateOnly = false;
+            bool showHelp = false;
 
-            if (args.Any())
+            OptionSet p = new OptionSet()
             {
-                string command = args.First().ToLowerInvariant();
+                { "<>", Strings.TargetArgumentDescription, v => targetArgument = v },
+                { "validate", Strings.ValidateDescription, v => validateOnly = v != null },
+                { "ignore=", Strings.IgnoreDescription, v => ignoreFileArgument = v },
+                { "?|h|help", Strings.HelpDescription, v => showHelp = v != null },
+            };
 
-                if (command.Equals("-?") || command.Equals("/?") || command.Equals("-help") || command.Equals("/help"))
+            try
+            {
+                p.Parse(args);
+            }
+            catch (OptionException)
+            {
+                Console.WriteLine(Strings.ShortUsageMessage);
+                Console.WriteLine($"Try `{Strings.ProgramName} --help` for more information.");
+                Environment.ExitCode = 21;
+                return;
+            }
+
+            if (showHelp || string.IsNullOrEmpty(targetArgument))
+            {
+                ShowUsage(p);
+            }
+            else if (!Directory.Exists(targetArgument) && !File.Exists(targetArgument))
+            {
+                Console.WriteLine(Strings.InvalidTargetArgument, targetArgument);
+                Environment.ExitCode = 9009;
+            }
+            else if (!string.IsNullOrEmpty(ignoreFileArgument) && !File.Exists(ignoreFileArgument))
+            {
+                Console.WriteLine(Strings.InvalidIgnoreFileArgument, ignoreFileArgument);
+                Environment.ExitCode = 9009;
+            }
+            else
+            {
+                // First see if we have an ignore file
+                string[] ignoredSolutionPatterns = new string[0];
+
+                if (!string.IsNullOrEmpty(ignoreFileArgument))
                 {
-                    errorCode = ShowUsage();
+                    // Because we're going to constantly use this for lookups save it off
+                    ignoredSolutionPatterns = _GetIgnoredSolutionPatterns(ignoreFileArgument).ToArray();
                 }
-                else if (command.Equals("validate"))
+
+                if (validateOnly)
                 {
-                    if (args.Length < 2)
+                    if (Directory.Exists(targetArgument))
                     {
-                        string error = "You must provide either a file or directory as a second argument to use validate";
-                        Console.WriteLine(error);
-                        errorCode = 1;
-                    }
-                    else
-                    {
-                        // The second argument is a directory
-                        string targetArgument = args[1];
-
-                        if (Directory.Exists(targetArgument))
+                        if (ignoredSolutionPatterns.Any())
                         {
-                            string[] ignoredSolutionPatterns = new string[0];
+                            string validatingAllSolutions = $"Validating all solutions in `{targetArgument}` except those filtered by `{ignoreFileArgument}`";
+                            Console.WriteLine(validatingAllSolutions);
 
-                            if (args.Length == 2)
+                            Console.WriteLine($"These are the ignored patterns (From: {ignoreFileArgument})");
+                            foreach (var ignoredSolutionPattern in ignoredSolutionPatterns)
                             {
-                                string validatingAllSolutions = $"Validating all solutions in `{targetArgument}`";
-                                Console.WriteLine(validatingAllSolutions);
+                                Console.WriteLine("{0}", ignoredSolutionPattern);
                             }
-                            else
-                            {
-                                string ignoredSolutionsArgument = args[2];
-                                string validatingAllSolutions = $"Validating all solutions in `{targetArgument}` except those filtered by `{ignoredSolutionsArgument}`";
-                                Console.WriteLine(validatingAllSolutions);
-
-                                // Because we're going to constantly use this for lookups save it off
-                                ignoredSolutionPatterns = _GetIgnoredSolutionPatterns(ignoredSolutionsArgument).ToArray();
-
-                                Console.WriteLine($"These are the ignored patterns (From: {ignoredSolutionsArgument})");
-                                foreach (var ignoredSolutionPattern in ignoredSolutionPatterns)
-                                {
-                                    Console.WriteLine("{0}", ignoredSolutionPattern);
-                                }
-                            }
-
-                            errorCode = ShakeSolutionsInDirectoryCount(targetArgument, ignoredSolutionPatterns);
-                        }
-                        else if (File.Exists(targetArgument))
-                        {
-                            string validatingSingleFile = $"Validating solution `{targetArgument}`";
-                            Console.WriteLine(validatingSingleFile);
-                            errorCode = ShakeSolutionCount(targetArgument);
                         }
                         else
                         {
-                            string error = $"The provided path `{targetArgument}` is not a folder or file.";
-                            errorCode = 9009;
+                            string validatingAllSolutions = $"Validating all solutions in `{targetArgument}`";
+                            Console.WriteLine(validatingAllSolutions);
                         }
+
+                        Environment.ExitCode = ShakeSolutionsInDirectoryCount(targetArgument, ignoredSolutionPatterns);
+                    }
+                    else if (File.Exists(targetArgument))
+                    {
+                        string validatingSingleFile = $"Validating solution `{targetArgument}`";
+                        Console.WriteLine(validatingSingleFile);
+                        Environment.ExitCode = ShakeSolutionCount(targetArgument);
+                    }
+                    else
+                    {
+                        // It should not be possible to reach this point
+                        throw new InvalidOperationException();
                     }
                 }
                 else
                 {
-                    string targetPath = command;
-
-                    if (Directory.Exists(targetPath))
+                    if (Directory.Exists(targetArgument))
                     {
-                        IEnumerable<string> ignoredSolutionPatterns = new string[0];
-
-                        if (args.Length == 1)
+                        if (ignoredSolutionPatterns.Any())
                         {
-                            string shakingAllSolutionsInDirectory = $"REM Shaking all Visual Studio Solutions (*.sln) in `{targetPath}`";
+                            string shakingAllSolutionsInDirectory = $"REM Shaking all solutions in `{targetArgument}` except those filtered by `{ignoreFileArgument}`";
                             Console.WriteLine(shakingAllSolutionsInDirectory);
                         }
                         else
                         {
-                            string ignoredSolutionsArgument = args[1];
-                            string shakingAllSolutionsInDirectory = $"REM Shaking all solutions in `{targetPath}` except those filtered by `{ignoredSolutionsArgument}`";
+                            string shakingAllSolutionsInDirectory = $"REM Shaking all Visual Studio Solutions (*.sln) in `{targetArgument}`";
                             Console.WriteLine(shakingAllSolutionsInDirectory);
 
-                            // Because we're going to constantly use this for lookups save it off
-                            ignoredSolutionPatterns = _GetIgnoredSolutionPatterns(ignoredSolutionsArgument).ToArray();
-
-                            Console.WriteLine($"REM These are the ignored patterns (From: {ignoredSolutionsArgument})");
-                            foreach(var ignoredSolutionPattern in ignoredSolutionPatterns)
+                            Console.WriteLine($"REM These are the ignored patterns (From: {ignoreFileArgument})");
+                            foreach (var ignoredSolutionPattern in ignoredSolutionPatterns)
                             {
                                 Console.WriteLine("REM {0}", ignoredSolutionPattern);
                             }
                         }
 
-                        bool projectsToRemove = ShakeSolutionsInDirectoryToConsole(targetPath, ignoredSolutionPatterns);
+                        bool projectsToRemove = ShakeSolutionsInDirectoryToConsole(targetArgument, ignoredSolutionPatterns);
 
                         // If there are any Solutions that need to be modified
                         // then we return a non-zero exit code.
                         if (projectsToRemove)
                         {
-                            errorCode = 1;
+                            Environment.ExitCode = 1;
                         }
                         else
                         {
-                            errorCode = 0;
+                            Environment.ExitCode = 0;
                         }
                     }
-                    else if (File.Exists(targetPath))
+                    else if (File.Exists(targetArgument))
                     {
-                        string updatingSingleFile = $"Shaking solution `{targetPath}`";
+                        string updatingSingleFile = $"Shaking solution `{targetArgument}`";
                         Console.WriteLine(updatingSingleFile);
-                        errorCode = ShakeSolutionToConsole(targetPath);
+                        Environment.ExitCode = ShakeSolutionToConsole(targetArgument);
                     }
                     else
                     {
-                        string error = $"The specified path `{targetPath}` is not valid.";
-                        Console.WriteLine(error);
-                        errorCode = 1;
+                        // It should not be possible to reach this point
+                        throw new InvalidOperationException();
                     }
                 }
             }
-            else
-            {
-                // This was a bad command
-                errorCode = ShowUsage();
-            }
-
-            Environment.Exit(errorCode);
         }
 
         /// <summary>
@@ -200,10 +208,16 @@ namespace VisualStudioSolutionShaker
         /// <summary>
         /// Prints the Usage of this Utility to the Console.
         /// </summary>
+        /// <param name="p">The <see cref="OptionSet"/> for this program.</param>
         /// <returns>An Exit Code Indicating that Help was Shown</returns>
-        private static int ShowUsage()
+        private static int ShowUsage(OptionSet p)
         {
-            Console.WriteLine(Resources.HelpMessage);
+            Console.WriteLine(Strings.ShortUsageMessage);
+            Console.WriteLine();
+            Console.WriteLine(Strings.LongDescription);
+            Console.WriteLine();
+            Console.WriteLine($"               <>            {Strings.TargetArgumentDescription}");
+            p.WriteOptionDescriptions(Console.Out);
             return 21;
         }
 
@@ -291,11 +305,11 @@ namespace VisualStudioSolutionShaker
             {
                 int removalCountForSolution = ShakeSolutionToConsole(targetSolution);
 
-                // Note that we do not care about solutions that failed to load
-                if (removalCountForSolution > 0)
+                    // Note that we do not care about solutions that failed to load
+                    if (removalCountForSolution > 0)
                 {
-                    // If ANY Project would fail let us know about it
-                    projectsToRemoveFromSolutions = true;
+                        // If ANY Project would fail let us know about it
+                        projectsToRemoveFromSolutions = true;
                 }
             }
             );
