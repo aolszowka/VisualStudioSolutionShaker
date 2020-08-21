@@ -42,7 +42,7 @@ The exit code will be non-zero to indicate that projects would be removed from t
 
 ## Usage
 ```text
-Usage: VisualStudioSolutionShaker [validate] directory/solution [ignore.txt]
+Usage: VisualStudioSolutionShaker C:\DirectoryWithSolutions\ [-validate][-ignore=ignore.txt]
 
 Given either a Visual Studio Solution (*.sln) or a Directory to Scan; identify
 any solution file that contains "extra" Projects. Extra Projects are defined as
@@ -50,24 +50,17 @@ projects that exist in a Virtual Solution Folder called "Dependencies" but are
 not referenced by any project (via ProjectReference or RuntimeReference) outside
 of the "Dependencies" folder.
 
-Invalid Command/Arguments. Valid commands are:
+If given a solution file or a directory find all solution files. Then opening
+each solution, grab all projects contained within the solution, removing those
+contained within the "Dependencies" Virtual Solution Folder. Then find all
+N-Order ProjectReference projects for those that remain. Compare this list to
+the existing list of projects in the Solution. Those projects that are missing
+from this new list are then output as "dotnet sln remove" commands for further
+processing to remove these projects. This is called "Process Mode".
 
-Directory-Solution [IgnorePatterns.txt]
-    [READS] If given a solution file or a directory find all solution files.
-    Then opening each solution, grab all projects contained within the solution,
-    removing those contained within the "Dependencies" Virtual Solution Folder.
-    Then find all N-Order ProjectReference projects for those that remain.
-    Compare this list to the existing list of projects in the Solution. Those
-    projects that are missing from this new list are then output as "dotnet sln
-    remove" commands for further processing to remove these projects.
-
-validate Directory-Solution [IgnorePatterns.txt]
-    [READS] Performs the above operation but instead the return code represents
-    the number of projects that would be removed from the given solution files.
-
-In all cases you can provide an optional argument of IgnorePatterns.txt (you
-can use any filename) which should be a plain text file of regular expression
-filters of solution files you DO NOT want this tool to operate on.
+When this project is ran with --validate  it performs the above operation as
+described but instead the return code represents the number of projects that
+would be removed from the given solution files.
 
 When ran in "Process Mode" The output of this tool is expected to be piped to a
 batch file that can be executed to perform the actual removes. This batch file
@@ -83,6 +76,16 @@ ignored. The return code is the number of projects that would be removed from
 the solution files, or zero if no projects would be removed from solutions.
 
 In all cases this tool DOES NOT modify the existing Solution files.
+
+Arguments:
+
+               <>            Either a Visual Studio Solution (*.sln) or Directory to scan for Visual Studio Solutions
+      --validate             Indicates if this tool should only be run in 
+                               validation mode
+      --ignore=VALUE         Path to plain text file of regular expression 
+                               filters of solution files you DO NOT want this 
+                               tool to operate on
+  -?, -h, --help             Show this message and exit
 ```
 
 ## Hacking
