@@ -48,7 +48,7 @@ namespace VisualStudioSolutionShaker
             catch (OptionException)
             {
                 Console.WriteLine(Strings.ShortUsageMessage);
-                Console.WriteLine($"Try `{Strings.ProgramName} --help` for more information.");
+                Console.WriteLine($"Try `--help` for more information.");
                 Environment.ExitCode = 21;
                 return;
             }

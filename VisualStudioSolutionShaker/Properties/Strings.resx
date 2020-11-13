@@ -165,11 +165,8 @@ In all cases this tool DOES NOT modify the existing Solution files.
 
 Arguments:</value>
   </data>
-  <data name="ProgramName" xml:space="preserve">
-    <value>VisualStudioSolutionShaker</value>
-  </data>
   <data name="ShortUsageMessage" xml:space="preserve">
-    <value>Usage: VisualStudioSolutionShaker C:\DirectoryWithSolutions\ [-validate][-ignore=ignore.txt]</value>
+    <value>Usage: C:\DirectoryWithSolutions\ [-validate][-ignore=ignore.txt]</value>
   </data>
   <data name="TargetArgumentDescription" xml:space="preserve">
     <value>Either a Visual Studio Solution (*.sln) or Directory to scan for Visual Studio Solutions</value>

@@ -113,16 +113,7 @@ namespace VisualStudioSolutionShaker.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to VisualStudioSolutionShaker.
-        /// </summary>
-        internal static string ProgramName {
-            get {
-                return ResourceManager.GetString("ProgramName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Usage: VisualStudioSolutionShaker C:\DirectoryWithSolutions\ [-validate][-ignore=ignore.txt].
+        ///   Looks up a localized string similar to Usage: C:\DirectoryWithSolutions\ [-validate][-ignore=ignore.txt].
         /// </summary>
         internal static string ShortUsageMessage {
             get {
