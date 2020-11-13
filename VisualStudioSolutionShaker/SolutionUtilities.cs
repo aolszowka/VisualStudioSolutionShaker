@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="SolutionUtilities.cs" company="Ace Olszowka">
-//  Copyright (c) Ace Olszowka 2018-2019. All rights reserved.
+//  Copyright (c) Ace Olszowka 2018-2020. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -123,7 +123,12 @@ namespace VisualStudioSolutionShaker
             }
         }
 
-        private static string ExtractProjectGuid(string solutionSubfolderLine)
+        /// <summary>
+        /// Extract the ProjectGuid from the Solution File
+        /// </summary>
+        /// <param name="solutionSubfolderLine">The Solution Line to Extract the GUID From</param>
+        /// <returns>The ProjectGuid.</returns>
+        internal static string ExtractProjectGuid(string solutionSubfolderLine)
         {
             // We need to extract the FIRST Guid from lines in this format:
             //  {A2CA68C7-43CB-4E31-A10E-BDF28DAFB512} = {0D1BC702-FE2E-4C44-B710-E7CC66E5D5FD}
