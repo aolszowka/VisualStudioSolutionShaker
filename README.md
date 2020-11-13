@@ -1,4 +1,6 @@
 # VisualStudioSolutionShaker
+![CI - Master](https://github.com/aolszowka/VisualStudioSolutionShaker/workflows/CI/badge.svg?branch=master)
+
 Utility program to "Shake" Visual Studio Solutions (SLN) of "stale" Dependencies.
 
 ## When To Use This Tool
@@ -41,8 +43,15 @@ REM `1` Projects Can Be Removed From Solution `s:\BadSolution.sln`
 The exit code will be non-zero to indicate that projects would be removed from the solution files.
 
 ## Usage
+There are now two ways to run this tool:
+
+1. (Compiled Executable) Invoke the tool via `VisualStudioSolutionShaker` and pass the arguments.
+2. (Dotnet Tool) Install this tool using the following command `dotnet tool install VisualStudioSolutionShaker` (assuming that you have the nuget package in your feed) then invoke it via `dotnet shake-solution`
+
+In both cases the flags to the tooling are identical:
+
 ```text
-Usage: VisualStudioSolutionShaker C:\DirectoryWithSolutions\ [-validate][-ignore=ignore.txt]
+Usage: C:\DirectoryWithSolutions\ [-validate][-ignore=ignore.txt]
 
 Given either a Visual Studio Solution (*.sln) or a Directory to Scan; identify
 any solution file that contains "extra" Projects. Extra Projects are defined as
@@ -79,11 +88,11 @@ In all cases this tool DOES NOT modify the existing Solution files.
 
 Arguments:
 
-               <>            Either a Visual Studio Solution (*.sln) or Directory to scan for Visual Studio Solutions
-      --validate             Indicates if this tool should only be run in 
+               <>            A Visual Studio Solution (*.sln) or Scan Directory
+      --validate             Indicates if this tool should only be run in
                                validation mode
-      --ignore=VALUE         Path to plain text file of regular expression 
-                               filters of solution files you DO NOT want this 
+      --ignore=VALUE         Path to plain text file of regular expression
+                               filters of solution files you DO NOT want this
                                tool to operate on
   -?, -h, --help             Show this message and exit
 ```

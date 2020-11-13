@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="SolutionUtilities.cs" company="Ace Olszowka">
-//  Copyright (c) Ace Olszowka 2018-2019. All rights reserved.
+//  Copyright (c) Ace Olszowka 2018-2020. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -11,6 +11,7 @@ namespace VisualStudioSolutionShaker
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
+
     using Microsoft.Build.Construction;
 
     internal static class SolutionUtilities
@@ -58,7 +59,7 @@ namespace VisualStudioSolutionShaker
                 solution
                 .ProjectsInOrder
                 .Where(project => project.ProjectType != SolutionProjectType.SolutionFolder)
-                .Select(project => PathUtilities.ExpandPath(project.AbsolutePath));
+                .Select(project => Path.GetFullPath(project.AbsolutePath));
         }
 
         internal static IEnumerable<string> GetProjectsFromSolutionExceptDependencies(string targetSolution)
@@ -78,7 +79,7 @@ namespace VisualStudioSolutionShaker
                 solution
                 .ProjectsInOrder
                 .Where(project => project.ProjectType != SolutionProjectType.SolutionFolder)
-                .Select(project => PathUtilities.ExpandPath(project.AbsolutePath))
+                .Select(project => Path.GetFullPath(project.AbsolutePath))
                 .Except(dependenciesFolderProjects);
         }
 
@@ -109,7 +110,7 @@ namespace VisualStudioSolutionShaker
 
                     // The Project API returns this using relative paths we
                     // want to expand this to the Fully Qualified Path.
-                    string fullyQualifiedPath = PathUtilities.ExpandPath(unexpandedAbsolutePath);
+                    string fullyQualifiedPath = Path.GetFullPath(unexpandedAbsolutePath);
 
                     yield return fullyQualifiedPath;
                 }
@@ -122,7 +123,12 @@ namespace VisualStudioSolutionShaker
             }
         }
 
-        private static string ExtractProjectGuid(string solutionSubfolderLine)
+        /// <summary>
+        /// Extract the ProjectGuid from the Solution File
+        /// </summary>
+        /// <param name="solutionSubfolderLine">The Solution Line to Extract the GUID From</param>
+        /// <returns>The ProjectGuid.</returns>
+        internal static string ExtractProjectGuid(string solutionSubfolderLine)
         {
             // We need to extract the FIRST Guid from lines in this format:
             //  {A2CA68C7-43CB-4E31-A10E-BDF28DAFB512} = {0D1BC702-FE2E-4C44-B710-E7CC66E5D5FD}

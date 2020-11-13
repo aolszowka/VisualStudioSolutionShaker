@@ -30,7 +30,9 @@ namespace VisualStudioSolutionShaker
         /// <returns>An Enumerable of project references with the full system path.</returns>
         public static IEnumerable<string> GetMSBuildProjectReferencesFullPath(string targetProject)
         {
-            return GetMSBuildProjectReferencesRelative(targetProject).Select(relativePath => PathUtilities.ResolveRelativePath(Path.GetDirectoryName(targetProject), relativePath));
+            return
+                GetMSBuildProjectReferencesRelative(targetProject)
+                .Select(relativePath => Path.GetFullPath(relativePath, Path.GetDirectoryName(targetProject)));
         }
 
         /// <summary>
@@ -41,8 +43,12 @@ namespace VisualStudioSolutionShaker
         /// <returns>An Enumerable of project references relative to the target project.</returns>
         public static IEnumerable<string> GetMSBuildProjectReferencesRelative(string targetProject)
         {
-            XDocument synprojXml = XDocument.Load(targetProject);
-            return synprojXml.Descendants(msbuildNS + "ProjectReference").Select(projectReferenceNode => projectReferenceNode.Attribute("Include").Value);
+            XDocument projXml = XDocument.Load(targetProject);
+            return
+                projXml
+                .Descendants(msbuildNS + "ProjectReference")
+                .Select(projectReferenceNode => projectReferenceNode.Attribute("Include").Value)
+                .Select(relativePath => relativePath.Replace('\\', Path.DirectorySeparatorChar));
         }
 
         /// <summary>
@@ -56,7 +62,7 @@ namespace VisualStudioSolutionShaker
             return
                 projXml.Descendants(msbuildNS + "RuntimeReference")
                 .Select(runtimeReference => runtimeReference.Attribute("Include").Value)
-                .Select(relativePath => PathUtilities.ResolveRelativePath(Path.GetDirectoryName(targetProject), relativePath));
+                .Select(relativePath => Path.GetFullPath(relativePath, Path.GetDirectoryName(targetProject)));
         }
 
         /// <summary>
@@ -97,7 +103,7 @@ namespace VisualStudioSolutionShaker
                     }
 
                     // Also get a list of all RuntimeReferences
-                    IEnumerable<string> runtimeReferences = MSBuildUtilities.GetRuntimeReferences(currentProjectToResolve);
+                    IEnumerable<string> runtimeReferences = GetRuntimeReferences(currentProjectToResolve);
 
                     // But only add those which have not already been resolved
                     foreach (string runtimeReference in runtimeReferences)

@@ -48,7 +48,7 @@ namespace VisualStudioSolutionShaker
             catch (OptionException)
             {
                 Console.WriteLine(Strings.ShortUsageMessage);
-                Console.WriteLine($"Try `{Strings.ProgramName} --help` for more information.");
+                Console.WriteLine($"Try `--help` for more information.");
                 Environment.ExitCode = 21;
                 return;
             }
@@ -75,7 +75,7 @@ namespace VisualStudioSolutionShaker
                 if (!string.IsNullOrEmpty(ignoreFileArgument))
                 {
                     // Because we're going to constantly use this for lookups save it off
-                    ignoredSolutionPatterns = _GetIgnoredSolutionPatterns(ignoreFileArgument).ToArray();
+                    ignoredSolutionPatterns = GetIgnoredSolutionPatterns(ignoreFileArgument).ToArray();
                 }
 
                 if (validateOnly)
@@ -88,7 +88,7 @@ namespace VisualStudioSolutionShaker
                             Console.WriteLine(validatingAllSolutions);
 
                             Console.WriteLine($"These are the ignored patterns (From: {ignoreFileArgument})");
-                            foreach (var ignoredSolutionPattern in ignoredSolutionPatterns)
+                            foreach (string ignoredSolutionPattern in ignoredSolutionPatterns)
                             {
                                 Console.WriteLine("{0}", ignoredSolutionPattern);
                             }
@@ -128,7 +128,7 @@ namespace VisualStudioSolutionShaker
                             Console.WriteLine(shakingAllSolutionsInDirectory);
 
                             Console.WriteLine($"REM These are the ignored patterns (From: {ignoreFileArgument})");
-                            foreach (var ignoredSolutionPattern in ignoredSolutionPatterns)
+                            foreach (string ignoredSolutionPattern in ignoredSolutionPatterns)
                             {
                                 Console.WriteLine("REM {0}", ignoredSolutionPattern);
                             }
@@ -167,7 +167,7 @@ namespace VisualStudioSolutionShaker
         /// </summary>
         /// <param name="targetIgnoreFile">The Text File that contains the ignore patterns.</param>
         /// <returns>An IEnumerable of strings that contain the patterns for solutions to ignore.</returns>
-        private static IEnumerable<string> _GetIgnoredSolutionPatterns(string targetIgnoreFile)
+        internal static IEnumerable<string> GetIgnoredSolutionPatterns(string targetIgnoreFile)
         {
             if (!File.Exists(targetIgnoreFile))
             {
@@ -189,7 +189,7 @@ namespace VisualStudioSolutionShaker
         /// <param name="targetSolution">The solution to evaluate.</param>
         /// <param name="ignoredSolutionPatterns">The RegEx of patterns to ignore.</param>
         /// <returns><c>true</c> if the solution should be processed; otherwise, <c>false</c>.</returns>
-        private static bool _ShouldProcessSolution(string targetSolution, IEnumerable<string> ignoredSolutionPatterns)
+        internal static bool ShouldProcessSolution(string targetSolution, IEnumerable<string> ignoredSolutionPatterns)
         {
             bool shouldProcessSolution = true;
 
@@ -203,22 +203,6 @@ namespace VisualStudioSolutionShaker
             }
 
             return shouldProcessSolution;
-        }
-
-        /// <summary>
-        /// Prints the Usage of this Utility to the Console.
-        /// </summary>
-        /// <param name="p">The <see cref="OptionSet"/> for this program.</param>
-        /// <returns>An Exit Code Indicating that Help was Shown</returns>
-        private static int ShowUsage(OptionSet p)
-        {
-            Console.WriteLine(Strings.ShortUsageMessage);
-            Console.WriteLine();
-            Console.WriteLine(Strings.LongDescription);
-            Console.WriteLine();
-            Console.WriteLine($"               <>            {Strings.TargetArgumentDescription}");
-            p.WriteOptionDescriptions(Console.Out);
-            return 21;
         }
 
         /// <summary>
@@ -267,7 +251,7 @@ namespace VisualStudioSolutionShaker
             IEnumerable<string> filteredSolutions =
                 Directory
                 .EnumerateFiles(targetDirectory, "*.sln", SearchOption.AllDirectories)
-                .Where(targetSolution => _ShouldProcessSolution(targetSolution, ignoredSolutionPatterns));
+                .Where(targetSolution => ShouldProcessSolution(targetSolution, ignoredSolutionPatterns));
 
             // Note this command ignores any load failures when calculating
             // the result and nothing is given to the end user to indicate this
@@ -299,17 +283,17 @@ namespace VisualStudioSolutionShaker
             IEnumerable<string> filteredSolutions =
                 Directory
                 .EnumerateFiles(targetDirectory, "*.sln", SearchOption.AllDirectories)
-                .Where(targetSolution => _ShouldProcessSolution(targetSolution, ignoredSolutionPatterns));
+                .Where(targetSolution => ShouldProcessSolution(targetSolution, ignoredSolutionPatterns));
 
             Parallel.ForEach(filteredSolutions, targetSolution =>
             {
                 int removalCountForSolution = ShakeSolutionToConsole(targetSolution);
 
-                    // Note that we do not care about solutions that failed to load
-                    if (removalCountForSolution > 0)
+                // Note that we do not care about solutions that failed to load
+                if (removalCountForSolution > 0)
                 {
-                        // If ANY Project would fail let us know about it
-                        projectsToRemoveFromSolutions = true;
+                    // If ANY Project would fail let us know about it
+                    projectsToRemoveFromSolutions = true;
                 }
             }
             );
@@ -347,6 +331,22 @@ namespace VisualStudioSolutionShaker
             }
 
             return removalCountForSolution;
+        }
+
+        /// <summary>
+        /// Prints the Usage of this Utility to the Console.
+        /// </summary>
+        /// <param name="p">The <see cref="OptionSet"/> for this program.</param>
+        /// <returns>An Exit Code Indicating that Help was Shown</returns>
+        private static int ShowUsage(OptionSet p)
+        {
+            Console.WriteLine(Strings.ShortUsageMessage);
+            Console.WriteLine();
+            Console.WriteLine(Strings.LongDescription);
+            Console.WriteLine();
+            Console.WriteLine($"               <>            {Strings.TargetArgumentDescription}");
+            p.WriteOptionDescriptions(Console.Out);
+            return 21;
         }
     }
 }

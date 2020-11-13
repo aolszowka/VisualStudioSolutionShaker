@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="MSBuildUtilitiesTests.cs" />
+    <Compile Include="ShakerTests.cs" />
+    <Compile Include="SolutionUtilitiesTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VisualStudioSolutionShaker\VisualStudioSolutionShaker.csproj" />
+  </ItemGroup>
+
+  <Target Name="CopyAssetsForTesting" AfterTargets="Build">
+    <!--Calculate the Output Path-->
+    <PropertyGroup>
+      <TestDataOutputPath>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory),$(OutputPath), TestData))</TestDataOutputPath>
+      <TestDataSourcePath>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory),TestData))</TestDataSourcePath>
+    </PropertyGroup>
+    <!--Delete any previous Output Path-->
+    <Delete Files="$(TestDataOutputPath)" />
+    <!--Gather the TestData to Copy-->
+    <ItemGroup>
+      <TestDataFiles Include="$(TestDataSourcePath)\**\*" />
+    </ItemGroup>
+    <!--Finally copy them; preserving their paths-->
+    <Message Text="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" Importance="high" />
+    <Message Text="~ Copying Test Files Into Output Directory ~" Importance="high" />
+    <Message Text="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" Importance="high" />
+    <Message Text="This is the Output Directory: $(TestDataOutputPath)" Importance="high" />
+    <Message Text="This is the Source Directory: $(TestDataSourcePath)" Importance="high" />
+    <Copy SourceFiles="@(TestDataFiles)" DestinationFolder="$(TestDataOutputPath)\%(RecursiveDir)" />
+  </Target>
+</Project>
