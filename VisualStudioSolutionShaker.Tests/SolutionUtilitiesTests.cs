@@ -7,6 +7,7 @@
 namespace VisualStudioSolutionShaker.Tests
 {
     using System.Collections;
+    using System.IO;
 
     using NUnit.Framework;
 
@@ -17,9 +18,26 @@ namespace VisualStudioSolutionShaker.Tests
         [TestCaseSource(typeof(ExtractProjectGuid_ValidInput_Tests))]
         public void ExtractProjectGuid_ValidInput(string solutionSubfolderLine, string expected)
         {
-            var actual = SolutionUtilities.ExtractProjectGuid(solutionSubfolderLine);
+            string actual = SolutionUtilities.ExtractProjectGuid(solutionSubfolderLine);
 
             Assert.That(actual, Is.EqualTo(expected));
+        }
+
+        [TestCaseSource(typeof(TryGetDepedenciesFolderGuid_ValidInput_Tests))]
+        public void TryGetDepedenciesFolderGuid_ValidInput(string solutionFile, string expected)
+        {
+            string actual = string.Empty;
+            SolutionUtilities.TryGetDepedenciesFolderGuid(solutionFile, out actual);
+
+            Assert.That(actual, Is.EqualTo(expected));
+        }
+    }
+
+    internal class TryGetDepedenciesFolderGuid_ValidInput_Tests : IEnumerable
+    {
+        public IEnumerator GetEnumerator()
+        {
+            yield return new TestCaseData(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "net472_A", "net472_A.sln"), "{5AD1934C-0503-4768-9385-B27CC2DE023F}");
         }
     }
 
