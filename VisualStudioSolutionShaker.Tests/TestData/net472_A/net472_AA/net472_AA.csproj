@@ -44,5 +44,11 @@
     <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\net472_AB\net472_AB.csproj">
+      <Project>{0200e4f5-bd83-42b1-8ee8-0b5e9621f160}</Project>
+      <Name>net472_AB</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
