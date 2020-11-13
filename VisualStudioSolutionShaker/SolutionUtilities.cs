@@ -11,6 +11,7 @@ namespace VisualStudioSolutionShaker
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
+
     using Microsoft.Build.Construction;
 
     internal static class SolutionUtilities
@@ -58,7 +59,7 @@ namespace VisualStudioSolutionShaker
                 solution
                 .ProjectsInOrder
                 .Where(project => project.ProjectType != SolutionProjectType.SolutionFolder)
-                .Select(project => PathUtilities.ExpandPath(project.AbsolutePath));
+                .Select(project => Path.GetFullPath(project.AbsolutePath));
         }
 
         internal static IEnumerable<string> GetProjectsFromSolutionExceptDependencies(string targetSolution)
@@ -78,7 +79,7 @@ namespace VisualStudioSolutionShaker
                 solution
                 .ProjectsInOrder
                 .Where(project => project.ProjectType != SolutionProjectType.SolutionFolder)
-                .Select(project => PathUtilities.ExpandPath(project.AbsolutePath))
+                .Select(project => Path.GetFullPath(project.AbsolutePath))
                 .Except(dependenciesFolderProjects);
         }
 
@@ -109,7 +110,7 @@ namespace VisualStudioSolutionShaker
 
                     // The Project API returns this using relative paths we
                     // want to expand this to the Fully Qualified Path.
-                    string fullyQualifiedPath = PathUtilities.ExpandPath(unexpandedAbsolutePath);
+                    string fullyQualifiedPath = Path.GetFullPath(unexpandedAbsolutePath);
 
                     yield return fullyQualifiedPath;
                 }

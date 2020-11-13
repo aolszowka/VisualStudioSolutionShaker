@@ -30,7 +30,7 @@ namespace VisualStudioSolutionShaker
         /// <returns>An Enumerable of project references with the full system path.</returns>
         public static IEnumerable<string> GetMSBuildProjectReferencesFullPath(string targetProject)
         {
-            return GetMSBuildProjectReferencesRelative(targetProject).Select(relativePath => PathUtilities.ResolveRelativePath(Path.GetDirectoryName(targetProject), relativePath));
+            return GetMSBuildProjectReferencesRelative(targetProject).Select(relativePath => Path.GetFullPath(relativePath, Path.GetDirectoryName(targetProject)));
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace VisualStudioSolutionShaker
             return
                 projXml.Descendants(msbuildNS + "RuntimeReference")
                 .Select(runtimeReference => runtimeReference.Attribute("Include").Value)
-                .Select(relativePath => PathUtilities.ResolveRelativePath(Path.GetDirectoryName(targetProject), relativePath));
+                .Select(relativePath => Path.GetFullPath(relativePath, Path.GetDirectoryName(targetProject)));
         }
 
         /// <summary>
