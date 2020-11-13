@@ -169,7 +169,7 @@ Arguments:</value>
     <value>Usage: C:\DirectoryWithSolutions\ [-validate][-ignore=ignore.txt]</value>
   </data>
   <data name="TargetArgumentDescription" xml:space="preserve">
-    <value>Either a Visual Studio Solution (*.sln) or Directory to scan for Visual Studio Solutions</value>
+    <value>A Visual Studio Solution (*.sln) or Scan Directory</value>
   </data>
   <data name="ValidateDescription" xml:space="preserve">
     <value>Indicates if this tool should only be run in validation mode</value>

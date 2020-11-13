@@ -88,7 +88,7 @@ In all cases this tool DOES NOT modify the existing Solution files.
 
 Arguments:
 
-               <>            Either a Visual Studio Solution (*.sln) or Directory to scan for Visual Studio Solutions
+               <>            A Visual Studio Solution (*.sln) or Scan Directory
       --validate             Indicates if this tool should only be run in
                                validation mode
       --ignore=VALUE         Path to plain text file of regular expression

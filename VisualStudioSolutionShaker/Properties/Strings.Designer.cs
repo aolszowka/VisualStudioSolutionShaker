@@ -122,7 +122,7 @@ namespace VisualStudioSolutionShaker.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Either a Visual Studio Solution (*.sln) or Directory to scan for Visual Studio Solutions.
+        ///   Looks up a localized string similar to A Visual Studio Solution (*.sln) or Scan Directory.
         /// </summary>
         internal static string TargetArgumentDescription {
             get {

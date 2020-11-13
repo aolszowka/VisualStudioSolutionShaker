@@ -206,22 +206,6 @@ namespace VisualStudioSolutionShaker
         }
 
         /// <summary>
-        /// Prints the Usage of this Utility to the Console.
-        /// </summary>
-        /// <param name="p">The <see cref="OptionSet"/> for this program.</param>
-        /// <returns>An Exit Code Indicating that Help was Shown</returns>
-        private static int ShowUsage(OptionSet p)
-        {
-            Console.WriteLine(Strings.ShortUsageMessage);
-            Console.WriteLine();
-            Console.WriteLine(Strings.LongDescription);
-            Console.WriteLine();
-            Console.WriteLine($"               <>            {Strings.TargetArgumentDescription}");
-            p.WriteOptionDescriptions(Console.Out);
-            return 21;
-        }
-
-        /// <summary>
         /// Given a path to a Solution determine how many projects would be "shaken" out.
         /// </summary>
         /// <param name="targetSolution">The solution to evaluate.</param>
@@ -347,6 +331,22 @@ namespace VisualStudioSolutionShaker
             }
 
             return removalCountForSolution;
+        }
+
+        /// <summary>
+        /// Prints the Usage of this Utility to the Console.
+        /// </summary>
+        /// <param name="p">The <see cref="OptionSet"/> for this program.</param>
+        /// <returns>An Exit Code Indicating that Help was Shown</returns>
+        private static int ShowUsage(OptionSet p)
+        {
+            Console.WriteLine(Strings.ShortUsageMessage);
+            Console.WriteLine();
+            Console.WriteLine(Strings.LongDescription);
+            Console.WriteLine();
+            Console.WriteLine($"               <>            {Strings.TargetArgumentDescription}");
+            p.WriteOptionDescriptions(Console.Out);
+            return 21;
         }
     }
 }
