@@ -1,4 +1,10 @@
-﻿namespace VisualStudioSolutionShaker.Tests
+﻿// -----------------------------------------------------------------------
+// <copyright file="MSBuildUtilitiesTests.cs" company="Ace Olszowka">
+//  Copyright (c) Ace Olszowka 2020. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace VisualStudioSolutionShaker.Tests
 {
     using System;
     using System.Collections;
