@@ -26,6 +26,45 @@
 
             Assert.That(actual, Is.EquivalentTo(expected));
         }
+
+        [TestCaseSource(typeof(ProjectsIncludingNOrderDependencies_ValidInput_Tests))]
+        public void ProjectsIncludingNOrderDependencies_ValidInput(IEnumerable<string> projects, IEnumerable<string> expected)
+        {
+            IEnumerable<string> actual = MSBuildUtilities.ProjectsIncludingNOrderDependencies(projects);
+
+            Assert.That(actual, Is.EquivalentTo(expected));
+        }
+    }
+
+    internal class ProjectsIncludingNOrderDependencies_ValidInput_Tests : IEnumerable
+    {
+        public IEnumerator GetEnumerator()
+        {
+            yield return new TestCaseData
+                (
+                    new string[]
+                    {
+                        Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "net472_A", "net472_AA", "net472_AA.csproj"),
+                    },
+                    new string[]
+                    {
+                        Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "net472_A", "net472_AA", "net472_AA.csproj"),
+                        Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "net472_A", "net472_AB", "net472_AB.csproj"),
+                        Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "net472_A", "net472_AC", "net472_AC.csproj"),
+                    }
+                );
+            yield return new TestCaseData
+                (
+                    new string[]
+                    {
+                        Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "net472_B", "net472_BA", "net472_BA.csproj"),
+                    },
+                    new string[]
+                    {
+                        Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "net472_B", "net472_BA", "net472_BA.csproj")
+                    }
+                );
+        }
     }
 
     internal class GetMSBuildProjectReferencesFullPath_ValidInput_Tests : IEnumerable
