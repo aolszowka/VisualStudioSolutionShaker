@@ -88,7 +88,7 @@ namespace VisualStudioSolutionShaker
                             Console.WriteLine(validatingAllSolutions);
 
                             Console.WriteLine($"These are the ignored patterns (From: {ignoreFileArgument})");
-                            foreach (var ignoredSolutionPattern in ignoredSolutionPatterns)
+                            foreach (string ignoredSolutionPattern in ignoredSolutionPatterns)
                             {
                                 Console.WriteLine("{0}", ignoredSolutionPattern);
                             }
@@ -128,7 +128,7 @@ namespace VisualStudioSolutionShaker
                             Console.WriteLine(shakingAllSolutionsInDirectory);
 
                             Console.WriteLine($"REM These are the ignored patterns (From: {ignoreFileArgument})");
-                            foreach (var ignoredSolutionPattern in ignoredSolutionPatterns)
+                            foreach (string ignoredSolutionPattern in ignoredSolutionPatterns)
                             {
                                 Console.WriteLine("REM {0}", ignoredSolutionPattern);
                             }
